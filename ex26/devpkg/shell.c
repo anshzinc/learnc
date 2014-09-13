@@ -17,7 +17,7 @@ int Shell_exec(Shell template, ...)
 	
 	va_start(argp, template);
 
-	for (key == va_arg(argp, const char *);
+	for (key = va_arg(argp, const char *);
 		key != NULL;
 		key = va_arg(argp, const char *))
 	{
@@ -51,9 +51,9 @@ int Shell_run(apr_pool_t *p, Shell *cmd)
 	apr_proc_t newproc;
 
 	rv = apr_procattr_create(&attr, p);
-	check(rc == APR_SUCCESS, "Failed to create proc attr.");
+	check(rv == APR_SUCCESS, "Failed to create proc attr.");
 
-	rv = apr_procattr_to_set(attr, APR_NO_PIPE, APR_NO_PIPE, 
+	rv = apr_procattr_io_set(attr, APR_NO_PIPE, APR_NO_PIPE, 
 			APR_NO_PIPE);
 	check(rv == APR_SUCCESS, "Failed to set IO of command.");
 
@@ -68,9 +68,9 @@ int Shell_run(apr_pool_t *p, Shell *cmd)
 	rv = apr_proc_wait(&newproc, &cmd->exit_code, &cmd->exit_why, APR_WAIT);
 	check(rv == APR_CHILD_DONE, "Failed to wait.");
 	
-	check(cmd->exit_code == 0, "%s exited badly.", cmd->exit);
+	check(cmd->exit_code == 0, "%s exited badly.", cmd->exe);
 	check(cmd->exit_why == APR_PROC_EXIT, "%s was killed or crashed", 
-		cmd->exe):
+		cmd->exe);
 	
 	return 0;
 error:
@@ -105,7 +105,7 @@ Shell CURL_SH = {
 Shell CONFIGURE_SH = {
 	.exe = "./configure",
 	.dir = "/tmp/pkg-build",
-	.args = {"configure", "OPTS, NULL}
+	.args = {"configure", "OPTS", NULL}
 };
 
 Shell MAKE_SH = {
@@ -116,7 +116,7 @@ Shell MAKE_SH = {
 
 Shell INSTALL_SH = {
 	.exe = "sudo",
-	.dir = '/tmp/pkg-build",
+	.dir = "/tmp/pkg-build",
 	.args = {"sudo", "make", "TARGET", NULL}
 };
 
